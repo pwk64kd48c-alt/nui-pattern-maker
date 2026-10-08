@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ぬい型紙メーカー</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f3f3f3;
+  color: #444;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Helvetica Neue",
+    "Hiragino Kaku Gothic ProN",
+    "Yu Gothic",
+    sans-serif;
+}
+
+header {
+  background: #8f8f8f;
+  color: white;
+  padding: 22px 16px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: 1px;
+}
+
+header p {
+  margin: 7px 0 0;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.container {
+  width: min(900px, calc(100% - 24px));
+  margin: 20px auto 50px;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.06);
+}
+
+.card h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 14px 0 7px;
+}
+
+textarea,
+input,
+select {
+  width: 100%;
+  border: 1px solid #d4d4d4;
+  border-radius: 10px;
+  background: white;
+  padding: 11px 12px;
+  font-size: 15px;
+  color: #444;
+}
+
+textarea {
+  min-height: 130px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+button {
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.primary {
+  width: 100%;
+  background: #8f8f8f;
+  color: white;
+  margin-top: 16px;
+}
+
+.secondary {
+  background: #eeeeee;
+  color: #555;
+}
+
+.small-button {
+  background: #eeeeee;
+  color: #555;
+  margin-top: 10px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.size-result {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.size-box {
+  background: #f5f5f5;
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.size-box span {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.size-box strong {
+  font-size: 18px;
+}
+
+.notice {
+  background: #f6f6f6;
+  border-radius: 10px;
+  padding: 11px 13px;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 12px;
+}
+
+.error {
+  color: #c44;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.success {
+  color: #5d8b68;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.preview-wrap {
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.a4-page {
+  width: 210mm;
+  min-width: 210mm;
+  height: 297mm;
+  background: white;
+  margin: 0 auto 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.12);
+  position: relative;
+}
+
+.a4-page svg {
+  display: block;
+  width: 210mm;
+  height: 297mm;
+}
+
+.preview-empty {
+  text-align: center;
+  color: #999;
+  padding: 50px 20px;
+}
+
+.legend {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.legend span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.line-solid {
+  width: 28px;
+  border-top: 2px solid #555;
+}
+
+.line-dash {
+  width: 28px;
+  border-top: 2px dashed #888;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+@media (max-width: 600px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .size-result {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .card {
+    padding: 16px;
+  }
+}
+
+@media print {
+  body {
+    background: white;
+  }
+
+  header,
+  .settings,
+  .actions,
+  .no-print {
+    display: none !important;
+  }
+
+  .container {
+    width: auto;
+    margin: 0;
+  }
+
+  .card {
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .preview-wrap {
+    padding: 0;
+    overflow: visible;
+  }
+
+  .a4-page {
+    margin: 0;
+    box-shadow: none;
+    page-break-after: always;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🧸 ぬい型紙メーカー</h1>
+  <p>ぬいのサイズを入れるだけで型紙サイズを自動計算 ✂️</p>
+</header>
+
+<div class="container">
+
+  <div class="card settings">
+    <h2>① ぬいの公式サイズをコピペ</h2>
+
+    <label for="officialText">
+      商品ページに書いてあるサイズ
+    </label>
+
+    <textarea
+      id="officialText"
+      placeholder="例：
+サイズ：約H125mm×W92mm×D46mm
+
+または
+
+高さ12.5cm×横9.2cm×奥行4.6cm"
+    ></textarea>
+
+    <button class="secondary" onclick="parseSize()">
+      サイズを読み取る
+    </button>
+
+    <div id="parseMessage"></div>
+
+    <div class="size-result">
+      <div class="size-box">
+        <span>高さ H</span>
+        <strong id="heightResult">---</strong> mm
+      </div>
+
+      <div class="size-box">
+        <span>横幅 W</span>
+        <strong id="widthResult">---</strong> mm
+      </div>
+
+      <div class="size-box">
+        <span>奥行 D</span>
+        <strong id="depthResult">---</strong> mm
+      </div>
+    </div>
+  </div>
+
+
+  <div class="card settings">
+    <h2>② 型紙の設定</h2>
+
+    <div class="row">
+
+      <div>
+        <label for="count">
+          入れるぬいの数
+        </label>
+
+        <select id="count">
+          <option value="1">1体</option>
+          <option value="2" selected>2体</option>
+          <option value="3">3体</option>
+          <option value="4">4体</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="ease">
+          横のゆとり
+        </label>
+
+        <input
+          id="ease"
+          type="number"
+          value="20"
+          min="0"
+          step="1"
+        >
+      </div>
+
+    </div>
+
+
+    <div class="row">
+
+      <div>
+        <label for="verticalEase">
+          縦のゆとり
+        </label>
+
+        <input
+          id="verticalEase"
+          type="number"
+          value="20"
+          min="0"
+          step="1"
+        >
+      </div>
+
+      <div>
+        <label for="depthEase">
+          奥行きのゆとり
+        </label>
+
+        <input
+          id="depthEase"
+          type="number"
+          value="20"
+          min="0"
+          step="1"
+        >
+      </div>
+
+    </div>
+
+
+    <div class="row">
+
+      <div>
+        <label for="casing">
+          ひも通し部分の高さ
+        </label>
+
+        <input
+          id="casing"
+          type="number"
+          value="25"
+          min="10"
+          step="1"
+        >
+      </div>
+
+      <div>
+        <label for="seam">
+          縫い代
+        </label>
+
+        <input
+          id="seam"
+          type="number"
+          value="10"
+          min="5"
+          step="1"
+        >
+      </div>
+
+    </div>
+
+
+    <label for="window">
+      透明窓
+    </label>
+
+    <select id="window">
+      <option value="yes" selected>あり</option>
+      <option value="no">なし</option>
+    </select>
+
+
+    <label for="lining">
+      裏地
+    </label>
+
+    <select id="lining">
+      <option value="yes" selected>あり</option>
+      <option value="no">なし</option>
+    </select>
+
+
+    <button class="primary" onclick="generatePattern()">
+      ✂️ 型紙を作る
+    </button>
+
+  </div>
+
+
+  <div class="card">
+    <h2>③ 完成サイズ</h2>
+
+    <div id="calculatedSize">
+      <div class="preview-empty">
+        サイズを読み取って「型紙を作る」を押してね🧸
+      </div>
+    </div>
+  </div>
+
+
+  <div class="card">
+    <h2>④ 型紙プレビュー</h2>
+
+    <div class="legend no-print">
+      <span>
+        <i class="line-solid"></i>
+        カット線
+      </span>
+
+      <span>
+        <i class="line-dash"></i>
+        折り線
+      </span>
+    </div>
+
+    <div id="preview" class="preview-wrap">
+      <div class="preview-empty">
+        ここにA4型紙が表示されるよ✂️
+      </div>
+    </div>
+
+    <div class="actions no-print">
+      <button class="secondary" onclick="window.print()">
+        🖨️ A4で印刷 / PDF保存
+      </button>
+
+      <button class="secondary" onclick="resetAll()">
+        ↩️ リセット
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* ==========================================
+   ① サイズ読み取り
+   ========================================== */
+
+let plush = {
+  height: null,
+  width: null,
+  depth: null
+};
+
+
+/* 数値をmmへ変換 */
+function toMM(value, unit) {
+
+  const number = parseFloat(value);
+
+  if (Number.isNaN(number)) {
+    return null;
+  }
+
+  if (unit && unit.toLowerCase() === "cm") {
+    return number * 10;
+  }
+
+  return number;
+}
+
+
+/* 公式サイズ文章から H / W / D を取得 */
+function parseSize() {
+
+  const text =
+    document.getElementById("officialText").value
+      .replace(/　/g, " ")
+      .replace(/×/g, "x")
+      .replace(/✕/g, "x")
+      .replace(/㎜/g, "mm")
+      .replace(/ｍｍ/g, "mm")
+      .replace(/ｃｍ/g, "cm");
+
+  let h = null;
+  let w = null;
+  let d = null;
+
+
+  /*
+    パターン①
+
+    H125mm × W92mm × D46mm
+  */
+  let match = text.match(
+    /H\s*([0-9]+(?:\.[0-9]+)?)\s*(mm|cm)?\s*x\s*W\s*([0-9]+(?:\.[0-9]+)?)\s*(mm|cm)?\s*x\s*D\s*([0-9]+(?:\.[0-9]+)?)\s*(mm|cm)?/i
+  );
+
+  if (match) {
+
+    h = toMM(match[1], match[2]);
+    w = toMM(match[3], match[4]);
+    d = toMM(match[5], match[6]);
+
+  }
+
+
+  /*
+    パターン②
+
+    高さ125mm × 横92mm × 奥行46mm
+  */
+
+  if (!h || !w || !d) {
+
+    match = text.match(
+      /高さ\s*[:：]?\s*([0-9]+(?:\.[0-9]+)?)\s*(mm|cm)?\s*x\s*(?:横|幅)\s*[:：]?\s*([0-9]+(?:\.[0-9]+)?)\s*(mm|cm)?\s*x\s*(?:奥行|奥行き)\s*[:：]?\s*([0-9]+(?:\.[0-9]+)?)\s*(mm|cm)?/i
+    );
+
+    if (match) {
+
+      h = toMM(match[1], match[2]);
+      w = toMM(match[3], match[4]);
+      d = toMM(match[5], match[6]);
+
+    }
+
+  }
+
+
+  /*
+    パターン③
+
+    高さ12.5cm 横9.2cm 奥行4.6cm
+  */
+
+  if (!h || !w || !d) {
+
+    const hm = text.match(
+      /高さ\s*[:：]?\s*([0-9]+(?:\.[0-9]+)?)\s*(mm|cm)/i
+    );
+
+    const wm = text.match(
+      /(?:横|幅)\s*[:：]?\s*([0-9]+(?:\.[0-9]+)?)\s*(mm|cm)/i
+    );
+
+    const dm = text.match(
+      /(?:奥行|奥行き)\s*[:：]?\s*([0-9]+(?:\.[0-9]+)?)\s*(mm|cm)/i
+    );
+
+    if (hm && wm && dm) {
+
+      h = toMM(hm[1], hm[2]);
+      w = toMM(wm[1], wm[2]);
+      d = toMM(dm[1], dm[2]);
+
+    }
+
+  }
+
+
+  /*
+    パターン④
+
+    H125mm W92mm D46mm
+  */
+
+  if (!h || !w || !d) {
+
+    const hm = text.match(
+      /\bH\s*([0-9]+(?:\.[0-9]+)?)\s*(mm|cm)?/i
+    );
+
+    const wm = text.match(
+      /\bW\s*([0-9]+(?:\.[0-9]+)?)\s*(mm|cm)?/i
+    );
+
+    const dm = text.match(
+      /\bD\s*([0-9]+(?:\.[0-9]+)?)\s*(mm|cm)?/i
+    );
+
+    if (hm && wm && dm) {
+
+      h = toMM(hm[1], hm[2]);
+      w = toMM(wm[1], wm[2]);
+      d = toMM(dm[1], dm[2]);
+
+    }
+
+  }
+
+
+  if (h && w && d) {
+
+    plush.height = h;
+    plush.width = w;
+    plush.depth = d;
+
+    document.getElementById("heightResult").textContent =
+      formatNumber(h);
+
+    document.getElementById("widthResult").textContent =
+      formatNumber(w);
+
+    document.getElementById("depthResult").textContent =
+      formatNumber(d);
+
+    document.getElementById("parseMessage").innerHTML =
+      '<div class="success">✓ サイズを読み取ったよ！</div>';
+
+  } else {
+
+    document.getElementById("parseMessage").innerHTML =
+      '<div class="error">サイズを読み取れなかったよ🥲 H/W/Dが分かる表記を入れてみて！</div>';
+
+  }
+
+}
+
+
+function formatNumber(value) {
+
+  if (Number.isInteger(value)) {
+    return value;
+  }
+
+  return Number(value.toFixed(1));
+
+}
+
+
+/* ==========================================
+   ② 型紙サイズ計算
+   ========================================== */
+
+function generatePattern() {
+
+  if (!plush.height || !plush.width || !plush.depth) {
+    parseSize();
+
+    if (!plush.height || !plush.width || !plush.depth) {
+      return;
+    }
+  }
+
+  const count =
+    Number(document.getElementById("count").value);
+
+  const ease =
+    Number(document.getElementById("ease").value) || 0;
+
+  const verticalEase =
+    Number(document.getElementById("verticalEase").value) || 0;
+
+  const depthEase =
+    Number(document.getElementById("depthEase").value) || 0;
+
+  const casing =
+    Number(document.getElementById("casing").value) || 25;
+
+  const seam =
+    Number(document.getElementById("seam").value) || 10;
+
+  const windowEnabled =
+    document.getElementById("window").value === "yes";
+
+  const liningEnabled =
+    document.getElementById("lining").value === "yes";
+
+
+  /*
+   * 完成サイズ
+   *
+   * 横：
+   * ぬいの横幅 × 体数 ＋ 全体のゆとり
+   *
+   * 高さ：
+   * ぬいの高さ ＋ 縦のゆとり
+   *
+   * 奥行：
+   * ぬいの奥行 ＋ 奥行のゆとり
+   */
+
+  const finishedWidth =
+    plush.width * count + ease;
+
+  const finishedHeight =
+    plush.height + verticalEase;
+
+  const finishedDepth =
+    plush.depth + depthEase;
+
+
+  /*
+   * 型紙の外寸
+   */
+
+  const bodyCutWidth =
+    finishedWidth + seam * 2;
+
+  const bodyCutHeight =
+    finishedHeight + casing + seam;
+
+
+  const gussetCutWidth =
+    finishedDepth + seam * 2;
+
+  const gussetCutHeight =
+    finishedHeight + seam * 2;
+
+
+  const bottomCutWidth =
+    finishedWidth + seam * 2;
+
+  const bottomCutDepth =
+    finishedDepth + seam * 2;
+
+
+  /*
+   * 透明窓
+   *
+   * 窓のサイズは、袋の正面に
+   * 無理なく収まるよう自動調整。
+   */
+
+  const windowWidth =
+    Math.max(
+      40,
+      finishedWidth - 30
+    );
+
+  const windowHeight =
+    Math.max(
+      40,
+      finishedHeight - 30
+    );
+
+
+  /*
+   * 結果表示
+   */
+
+  document.getElementById("calculatedSize").innerHTML = `
+
+    <div class="size-result">
+
+      <div class="size-box">
+        <span>完成 横幅</span>
+        <strong>${formatNumber(finishedWidth)}</strong> mm
+      </div>
+
+      <div class="size-box">
+        <span>完成 高さ</span>
+        <strong>${formatNumber(finishedHeight)}</strong> mm
+      </div>
+
+      <div class="size-box">
+        <span>完成 奥行</span>
+        <strong>${formatNumber(finishedDepth)}</strong> mm
+      </div>
+
+    </div>
+
+    <div class="notice">
+
+      <strong>今回の設定</strong><br>
+
+      ${count}体入り ／
+      横ゆとり ${formatNumber(ease)}mm ／
+      縦ゆとり ${formatNumber(verticalEase)}mm ／
+      奥行ゆとり ${formatNumber(depthEase)}mm<br>
+
+      ひも通し ${formatNumber(casing)}mm ／
+      縫い代 ${formatNumber(seam)}mm ／
+
+      透明窓：
+      ${windowEnabled ? "あり" : "なし"} ／
+
+      裏地：
+      ${liningEnabled ? "あり" : "なし"}
+
+    </div>
+
+    <div class="notice">
+
+      <strong>型紙サイズ</strong><br>
+
+      本体：
+      ${formatNumber(bodyCutWidth)} ×
+      ${formatNumber(bodyCutHeight)}mm<br>
+
+      側面：
+      ${formatNumber(gussetCutWidth)} ×
+      ${formatNumber(gussetCutHeight)}mm<br>
+
+      底：
+      ${formatNumber(bottomCutWidth)} ×
+      ${formatNumber(bottomCutDepth)}mm
+
+    </div>
+
+  `;
+
+
+  /*
+   * A4型紙を作成
+   */
+
+  createPatternPages({
+    finishedWidth,
+    finishedHeight,
+    finishedDepth,
+    bodyCutWidth,
+    bodyCutHeight,
+    gussetCutWidth,
+    gussetCutHeight,
+    bottomCutWidth,
+    bottomCutDepth,
+    windowWidth,
+    windowHeight,
+    casing,
+    seam,
+    windowEnabled,
+    liningEnabled
+  });
+
+}
+
+
+/* ==========================================
+   A4 SVG
+   ========================================== */
+
+function svgStart() {
+
+  return `
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="210mm"
+    height="297mm"
+    viewBox="0 0 210 297"
+  >
+
+    <rect
+      x="0"
+      y="0"
+      width="210"
+      height="297"
+      fill="white"
+    />
+
+  `;
+
+}
+
+
+function svgEnd() {
+
+  return `</svg>`;
+
+}
+
+
+/* ==========================================
+   型紙ページ生成
+   ========================================== */
+
+function createPatternPages(data) {
+
+  const preview =
+    document.getElementById("preview");
+
+  preview.innerHTML = "";
+
+
+  /*
+   * A4の中に入る余白
+   */
+
+  const margin = 10;
+
+
+  /*
+   * 1枚目
+   * 本体
+   */
+
+  let svg = svgStart();
+
+
+  /*
+   * 本体パーツ
+   */
+
+  const bodyX = 15;
+  const bodyY = 18;
+
+  let bodyW = data.bodyCutWidth;
+  let bodyH = data.bodyCutHeight;
+
+
+  /*
+   * 大きすぎる場合は
+   * A4内に収まるよう表示だけ縮小。
+   *
+   * 実際の寸法はSVGのmm単位を維持。
+   */
+
+  svg += `
+    <g
+      transform="
+        translate(${bodyX} ${bodyY})
+      "
+    >
+
+      <rect
+        x="0"
+        y="0"
+        width="${bodyW}"
+        height="${bodyH}"
+        fill="none"
+        stroke="#444"
+        stroke-width="0.5"
+      />
+
+      <!-- ひも通し折り線 -->
+
+      <line
+        x1="0"
+        y1="${data.seam}"
+        x2="${bodyW}"
+        y2="${data.seam}"
+        stroke="#888"
+        stroke-width="0.4"
+        stroke-dasharray="3 2"
+      />
+
+      <!-- ひも通し部分 -->
+
+      <line
+        x1="0"
+        y1="${data.seam + data.casing}"
+        x2="${bodyW}"
+        y2="${data.seam + data.casing}"
+        stroke="#888"
+        stroke-width="0.4"
+        stroke-dasharray="3 2"
+      `;
+
+
+  /*
+   * 透明窓
+   */
+
+  if (data.windowEnabled) {
+
+    const wx =
+      (bodyW - data.windowWidth) / 2;
+
+    const wy =
+      data.casing +
+      data.seam +
+      12;
+
+    svg += `
+
+      <rect
+        x="${wx}"
+        y="${wy}"
+        width="${data.windowWidth}"
+        height="${data.windowHeight}"
+        rx="8"
+        ry="8"
+        fill="none"
+        stroke="#555"
+        stroke-width="0.5"
+        stroke-dasharray="4 2"
+      />
+
+    `;
+
+  }
+
+
+  svg += `
+
+    </g>
+  `;
+
+
+  /*
+   * 50mm校正用スクエア
+   */
+
+  svg += `
+
+    <rect
+      x="145"
+      y="235"
+      width="50"
+      height="50"
+      fill="none"
+      stroke="#555"
+      stroke-width="0.5"
+    />
+
+  `;
+
+
+  svg += svgEnd();
+
+
+  addPage(preview, svg);
+
+
+  /*
+   * 2枚目：側面
+   */
+
+  let svg2 = svgStart();
+
+
+  const gussetX = 15;
+  const gussetY = 20;
+
+
+  svg2 += `
+
+    <rect
+      x="${gussetX}"
+      y="${gussetY}"
+      width="${data.gussetCutWidth}"
+      height="${data.gussetCutHeight}"
+      fill="none"
+      stroke="#444"
+      stroke-width="0.5"
+    />
+
+    <line
+      x1="${gussetX}"
+      y1="${gussetY + data.seam}"
+      x2="${gussetX + data.gussetCutWidth}"
+      y2="${gussetY + data.seam}"
+      stroke="#888"
+      stroke-width="0.4"
+      stroke-dasharray="3 2"
+    />
+
+  `;
+
+
+  svg2 += svgEnd();
+
+  addPage(preview, svg2);
+
+
+  /*
+   * 3枚目：底
+   */
+
+  let svg3 = svgStart();
+
+
+  svg3 += `
+
+    <rect
+      x="15"
+      y="20"
+      width="${data.bottomCutWidth}"
+      height="${data.bottomCutDepth}"
+      fill="none"
+      stroke="#444"
+      stroke-width="0.5"
+    />
+
+  `;
+
+
+  svg3 += svgEnd();
+
+  addPage(preview, svg3);
+
+
+  /*
+   * 裏地がある場合
+   *
+   * 追加で裏地本体を表示
+   */
+
+  if (data.liningEnabled) {
+
+    let svg4 = svgStart();
+
+
+    svg4 += `
+
+      <rect
+        x="15"
+        y="20"
+        width="${data.bodyCutWidth}"
+        height="${data.bodyCutHeight - data.casing}"
+        fill="none"
+        stroke="#444"
+        stroke-width="0.5"
+      />
+
+    `;
+
+
+    svg4 += svgEnd();
+
+    addPage(preview, svg4);
+
+  }
+
+}
+
+
+/* ==========================================
+   A4ページ追加
+   ========================================== */
+
+function addPage(container, svg) {
+
+  const page =
+    document.createElement("div");
+
+  page.className = "a4-page";
+
+  page.innerHTML = svg;
+
+  container.appendChild(page);
+
+}
+
+
+/* ==========================================
+   リセット
+   ========================================== */
+
+function resetAll() {
+
+  plush = {
+    height: null,
+    width: null,
+    depth: null
+  };
+
+
+  document.getElementById("officialText").value = "";
+
+  document.getElementById("heightResult").textContent = "---";
+  document.getElementById("widthResult").textContent = "---";
+  document.getElementById("depthResult").textContent = "---";
+
+  document.getElementById("parseMessage").innerHTML = "";
+
+  document.getElementById("calculatedSize").innerHTML = `
+    <div class="preview-empty">
+      サイズを読み取って「型紙を作る」を押してね🧸
+    </div>
+  `;
+
+  document.getElementById("preview").innerHTML = `
+    <div class="preview-empty">
+      ここにA4型紙が表示されるよ✂️
+    </div>
+  `;
+
+}
+
+
+/* ==========================================
+   初期化
+   ========================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  document
+    .getElementById("officialText")
+    .addEventListener("input", () => {
+
+      document.getElementById("parseMessage").innerHTML = "";
+
+    });
+
+});
+
+</script>
+
+</body>
+</html>
